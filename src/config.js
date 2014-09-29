@@ -21,6 +21,7 @@ define(function() {
         CHART_TYPE_CHORD : 'chord',
         CHART_TYPE_GAUGE : 'gauge',
         CHART_TYPE_FUNNEL : 'funnel',
+        CHART_TYPE_VENN : 'venn',
 
         // 组件类型
         COMPONENT_TYPE_TITLE: 'title',
@@ -41,7 +42,7 @@ define(function() {
 
         // 全图默认背景
         backgroundColor: 'rgba(0,0,0,0)',
-        
+
         // 默认色板
         color: ['#ff7f50','#87cefa','#da70d6','#32cd32','#6495ed',
                 '#ff69b4','#ba55d3','#cd5c5c','#ffa500','#40e0d0',
@@ -78,7 +79,7 @@ define(function() {
                 color: '#aaa'          // 副标题文字颜色
             }
         },
-        
+
         // 图例
         legend: {
             orient: 'horizontal',      // 布局方式，默认为水平布局，可选为：
@@ -105,7 +106,7 @@ define(function() {
             // selected: null,         // 配置默认选中状态，可配合LEGEND.SELECTED事件做动态数据载入
             // data: [],               // 图例内容（详见legend.data，数组中每一项代表一个item
         },
-        
+
         // 值域
         dataRange: {
             orient: 'vertical',        // 布局方式，默认为垂直布局，可选为：
@@ -131,7 +132,7 @@ define(function() {
             splitNumber: 5,            // 分割段数，默认为5，为0时为线性渐变
             calculable: false,         // 是否值域漫游，启用后无视splitNumber，线性渐变
             realtime: true,
-            color:['#006edd','#e0ffff'],//颜色 
+            color:['#006edd','#e0ffff'],//颜色
             //formatter: null,
             //text:['高','低'],           // 文本，默认为数值文本
             textStyle: {
@@ -207,7 +208,7 @@ define(function() {
                     show : false,
                     title : '保存为图片',
                     type : 'png',
-                    lang : ['点击保存'] 
+                    lang : ['点击保存']
                 }
             }
         },
@@ -307,7 +308,7 @@ define(function() {
             axisTick: {            // 坐标轴小标记
                 show: true,        // 属性show控制显示与否，默认不显示
                 interval: 'auto',
-                inside : false,    // 控制小标记是否在grid里 
+                inside : false,    // 控制小标记是否在grid里
                 // onGap: null,
                 length :5,         // 属性length控制线长
                 lineStyle: {       // 属性lineStyle控制线条样式
@@ -368,7 +369,7 @@ define(function() {
             },
             axisTick: {            // 坐标轴小标记
                 show: false,       // 属性show控制显示与否，默认不显示
-                inside : false,    // 控制小标记是否在grid里 
+                inside : false,    // 控制小标记是否在grid里
                 length :5,         // 属性length控制线长
                 lineStyle: {       // 属性lineStyle控制线条样式
                     color: '#333',
@@ -500,7 +501,7 @@ define(function() {
             currentIndex : 0
             // data : []
         },
-        
+
         // 柱形图默认参数
         bar: {
             clickable: true,
@@ -583,14 +584,14 @@ define(function() {
             //symbolRotate : null,  // 拐点图形旋转控制
             showAllSymbol: false    // 标志图形默认只有主轴显示（随主轴标签间隔隐藏策略）
         },
-        
+
         // K线图默认参数
         k: {
             clickable: true,
             xAxisIndex: 0,
             yAxisIndex: 0,
             // barWidth : null          // 默认自适应
-            // barMaxWidth : null       // 默认自适应 
+            // barMaxWidth : null       // 默认自适应
             itemStyle: {
                 normal: {
                     color: '#fff',          // 阳线填充颜色
@@ -607,7 +608,7 @@ define(function() {
                 }
             }
         },
-        
+
         // 散点图默认参数
         scatter: {
             clickable: true,
@@ -739,7 +740,7 @@ define(function() {
                 }
             }
         },
-        
+
         map: {
             mapType: 'china',   // 各省的mapType暂时都用中文
             //mapLocation: {
@@ -749,7 +750,7 @@ define(function() {
                 // height   // 自适应
             //},
             // mapValueCalculation: 'sum', // 数值合并方式，默认加和，可选为：
-                                           // 'sum' | 'average' | 'max' | 'min' 
+                                           // 'sum' | 'average' | 'max' | 'min'
             mapValuePrecision : 0,         // 地图数值计算结果小数精度
             showLegendSymbol : true,       // 显示图例颜色标识（系列标识的小圆点），存在legend时生效
             // selectedMode: false,        // 选择模式，默认关闭，可选single，multiple
@@ -788,7 +789,7 @@ define(function() {
                 }
             }
         },
-        
+
         force : {
             // 布局中心
             center: ['50%', '50%'],
@@ -798,7 +799,7 @@ define(function() {
 
             // 布局冷却因子，值越小结束时间越短，值越大时间越长但是结果也越收敛
             coolDown: 0.99,
-            
+
             // 数据映射到圆的半径的最小值和最大值
             minRadius : 10,
             maxRadius : 20,
@@ -944,7 +945,7 @@ define(function() {
              *
              *  Relation ship from source to target
              *  https://github.com/mbostock/d3/wiki/Chord-Layout#wiki-chord
-             *  
+             *
              *  Row based
              */
             matrix : []
@@ -962,7 +963,7 @@ define(function() {
             axisLine: {            // 坐标轴线
                 show: true,        // 默认显示，属性show控制显示与否
                 lineStyle: {       // 属性lineStyle控制线条样式
-                    color: [[0.2, '#228b22'],[0.8, '#48b'],[1, '#ff4500']], 
+                    color: [[0.2, '#228b22'],[0.8, '#48b'],[1, '#ff4500']],
                     width: 30
                 }
             },
@@ -1021,7 +1022,7 @@ define(function() {
                 }
             }
         },
-        
+
         funnel : {
             clickable: true,
             x: 80,
@@ -1070,12 +1071,12 @@ define(function() {
                 }
             }
         },
-        
+
         island: {
             r: 15,
             calculateStep: 0.1  // 滚轮可计算步长 0.1 = 10%
         },
-        
+
         markPoint : {
             symbol: 'pin',         // 标注类型
             symbolSize: 10,        // 标注大小，半宽（半径）参数，当图形为方向或菱形则总宽度为symbolSize * 2
@@ -1093,7 +1094,7 @@ define(function() {
             itemStyle: {
                 normal: {
                     // color: 各异，
-                    // borderColor: 各异,     // 标注边线颜色，优先于color 
+                    // borderColor: 各异,     // 标注边线颜色，优先于color
                     borderWidth: 2,            // 标注边线线宽，单位px，默认为1
                     label: {
                         show: true,
@@ -1115,10 +1116,10 @@ define(function() {
                 }
             }
         },
-        
+
         markLine : {
             // 标线起始和结束的symbol介绍类型，如果都一样，可以直接传string
-            symbol: ['circle', 'arrow'],  
+            symbol: ['circle', 'arrow'],
             // 标线起始和结束的symbol大小，半宽（半径）参数，当图形为方向或菱形则总宽度为symbolSize * 2
             symbolSize: [2, 4],
             // 标线起始和结束的symbol旋转控制
@@ -1137,7 +1138,7 @@ define(function() {
             itemStyle: {
                 normal: {
                     // color: 各异,           // 标线主色，线色，symbol主色
-                    // borderColor: 随color,     // 标线symbol边框颜色，优先于color 
+                    // borderColor: 随color,     // 标线symbol边框颜色，优先于color
                     borderWidth: 1.5,          // 标线symbol边框线宽，单位px，默认为2
                     label: {
                         show: true,

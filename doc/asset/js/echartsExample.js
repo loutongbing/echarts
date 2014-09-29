@@ -9,7 +9,7 @@ var needRefresh = false;
 var hash = location.hash.replace('#','') || (needMap() ? 'default' : 'macarons');
 var curTheme;
 function requireCallback (ec, defaultTheme) {
-    curTheme = themeSelector 
+    curTheme = themeSelector
                ? defaultTheme
                : {};
     echarts = ec;
@@ -20,7 +20,7 @@ function requireCallback (ec, defaultTheme) {
 var themeSelector = $('#theme-select');
 if (themeSelector) {
     themeSelector.html(
-        '<option selected="true" name="macarons">macarons</option>' 
+        '<option selected="true" name="macarons">macarons</option>'
         + '<option name="infographic">infographic</option>'
         + '<option name="shine">shine</option>'
         + '<option name="dark">dark</option>'
@@ -122,7 +122,7 @@ function needMap() {
 }
 
 var echarts;
-var developMode = false;
+var developMode = true;
 
 if (developMode) {
     // for develop
@@ -135,8 +135,8 @@ if (developMode) {
             },
             {
                 name: 'zrender',
-                //location: 'http://ecomfe.github.io/zrender/src',
-                location: '../../../zrender/src',
+                location: 'http://ecomfe.github.io/zrender/src',
+                //location: '../../../zrender/src',
                 main: 'zrender'
             }
         ]
@@ -146,7 +146,7 @@ else {
     // for echarts online home page
     var fileLocation = needMap() ? './www/js/echarts-map' : './www/js/echarts';
     require.config({
-        paths:{ 
+        paths:{
             echarts: fileLocation,
             'echarts/chart/line': fileLocation,
             'echarts/chart/bar': fileLocation,
@@ -158,7 +158,8 @@ else {
             'echarts/chart/chord': fileLocation,
             'echarts/chart/force': fileLocation,
             'echarts/chart/gauge': fileLocation,
-            'echarts/chart/funnel': fileLocation
+            'echarts/chart/funnel': fileLocation,
+            'echarts/chart/venn': fileLocation
         }
     });
 }
@@ -178,6 +179,7 @@ require(
         'echarts/chart/chord',
         'echarts/chart/gauge',
         'echarts/chart/funnel',
+        'echarts/chart/venn',
         needMap() ? 'echarts/chart/map' : 'echarts'
     ],
     requireCallback
