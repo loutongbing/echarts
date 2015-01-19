@@ -46,7 +46,7 @@ define(function (require) {
          * 绘制图形
          */
         _buildShape : function () {
-            var series = this.series;
+            var series = this.series[0];
             var legend = this.component.legend;
             // 复用参数索引
             this._paramsMap = {};
@@ -55,7 +55,7 @@ define(function (require) {
 
             var serieName;
 
-            this.data = series[0].data;
+            this.data = series.data;
             this._buildVenn();
             this.addShapeList();
         },
@@ -66,47 +66,38 @@ define(function (require) {
          * @param {number} seriesIndex 系列索引
          */
         _buildVenn : function () {
-            var legend = this.component.legend;
-            var data = this.data
-
-
-
-            var itemName;
-            var selectedData = [];
-
+            var data = this.data;
             var r0;
             var r1;
             if (data[0].value > data[1].value) {
-                r0 = this.zr.getHeight()/3;
+                r0 = this.zr.getHeight() / 3;
                 r1 = r0 * Math.sqrt(data[1].value) / Math.sqrt(data[0].value);
             }
             else {
-                r1 = this.zr.getHeight()/3;
+                r1 = this.zr.getHeight() / 3;
                 r0 = r1 * Math.sqrt(data[0].value) / Math.sqrt(data[1].value);
             }
 
-            var x0 = this.zr.getWidth()/2 - r0;
-            var coincideLength = ((r0+r1)/2)*Math.sqrt(data[2].value)/Math.sqrt((data[0].value+data[1].value)/2);
-           // var coincideLengthAnchor = r0*Math.sqrt(data[2].value)/Math.sqrt((data[0].value+data[1].value)/2);
-
-            var coincideLengthAnchor = ((r0+r1)/2)*Math.sqrt(data[2].value)/Math.sqrt((data[0].value+data[1].value)/2);
-
-
-
-            // var coincideLengthAnchor = r0;
-
-            var coincideLength = this._getCoincideLength(
-                data[0].value,
-                data[1].value,
-                data[2].value,
-                r0, r1,
-                coincideLengthAnchor,
-                Math.abs(r0 - r1),
-                r0 + r1);
-
+            var x0 = this.zr.getWidth() / 2 - r0;
+            // 估值 两个圆心的距离与两圆半径均值之比等于交集与两集合均值的开方之比。
+            // 公共距离（coincideLengthAnchor）/ 公共数值开方 = 半径平均值 / 各自数值均值的开方
+            var coincideLengthAnchor = ((r0 + r1) / 2) * Math.sqrt(data[2].value) / Math.sqrt((data[0].value + data[1].value) / 2);
+            // 如果两者没有公共面积，则圆心距就为两圆半径之和
+            var coincideLength = r0 + r1;
+            if (data[2].value !== 0) {
+                coincideLength = this._getCoincideLength(
+                    data[0].value,
+                    data[1].value,
+                    data[2].value,
+                    r0, r1,
+                    coincideLengthAnchor,
+                    Math.abs(r0 - r1),
+                    r0 + r1
+                );
+            }
 
             var x1 = x0 +  coincideLength;
-            var y = this.zr.getHeight()/2;
+            var y = this.zr.getHeight() / 2;
 
             this._buildItem(
                 0, 0,
@@ -125,14 +116,14 @@ define(function (require) {
 
             this._paramsMap = [
                 {
-                    location : {
+                    location: {
                         x: x0,
                         y: y,
                         r: r0
                     }
                 },
                 {
-                    location : {
+                    location: {
                         x: x1,
                         y: y,
                         r: r1
@@ -144,29 +135,54 @@ define(function (require) {
 
 
         },
-        _getCoincideLength: function (value0, value1, value3, r0, r1, coincideLengthAnchor, coincideLengthAnchorMin, coincideLengthAnchorMax) {
-            var x = (r0*r0 - r1*r1)/(2*coincideLengthAnchor) + coincideLengthAnchor/2;
-            var y = coincideLengthAnchor/2 - (r0*r0 - r1*r1)/(2*coincideLengthAnchor);
-            var alfa = Math.acos(x/r0);
-            var beta = Math.acos(y/r1);
-            var scaleAnchor = (alfa*r0*r0 - x*r0*Math.sin(alfa) + beta*r1*r1 - y*r1*Math.sin(beta))/(r0*r0*Math.PI);
-            var scale = value3/value0;
-            var approximateValue = Math.abs(scaleAnchor/scale);
+/**
+ * 逼近算法得到两圆的间距
+ * @param {number} value0 第一个圆的原始数值
+ * @param {number} value1 第二个圆的原始数值
+ * @param {number} value3 公共部分的原始数值
+ * @param {number} r0 第一个圆的半径
+ * @param {number} r1 第二个圆的半径
+ * @return {Node}
+*/
+        _getCoincideLength: function (
+            value0,
+            value1,
+            value2,
+            r0,
+            r1,
+            coincideLengthAnchor,
+            coincideLengthAnchorMin,
+            coincideLengthAnchorMax
+        ) {
+            // 计算
+            var x = (r0 * r0 - r1 * r1) / (2 * coincideLengthAnchor) + coincideLengthAnchor / 2;
+            var y = coincideLengthAnchor / 2 - (r0 * r0 - r1 * r1) / (2 * coincideLengthAnchor);
+            // 夹角
+            var alfa = Math.acos(x / r0);
+            var beta = Math.acos(y / r1);
+            // 第一个圆的面积
+            var area0 = r0 * r0 * Math.PI;
+            // 计算的公共面积 (思路是扇形减三角形)
+            var area2 = alfa * r0 * r0 - x * r0 * Math.sin(alfa) + beta * r1 * r1 - y * r1 * Math.sin(beta);
+            var scaleAnchor = area2 / area0;
+            var scale = value2 / value0;
+            var approximateValue = Math.abs(scaleAnchor / scale);
             if (approximateValue > 0.999 && approximateValue < 1.001) {
                 return coincideLengthAnchor;
             }
             // 若是公共面积比较小，使距离减小一些，让公共面积增大
             else if (approximateValue <= 0.999) {
-                var coincideLengthAnchorMax = coincideLengthAnchor;
-                coincideLengthAnchor = (coincideLengthAnchor + coincideLengthAnchorMin)/2;
-                return this._getCoincideLength(value0, value1, value3, r0, r1,
+                coincideLengthAnchorMax = coincideLengthAnchor;
+                // 二分法计算新的步调
+                coincideLengthAnchor = (coincideLengthAnchor + coincideLengthAnchorMin) / 2;
+                return this._getCoincideLength(value0, value1, value2, r0, r1,
                     coincideLengthAnchor, coincideLengthAnchorMin, coincideLengthAnchorMax);
             }
             // 若是公共面积比较大，使距离增大一些，让公共面积减小
             else {
-                var coincideLengthAnchorMin = coincideLengthAnchor;
-                coincideLengthAnchor = (coincideLengthAnchor + coincideLengthAnchorMax)/2;
-                return this._getCoincideLength(value0, value1, value3, r0, r1,
+                coincideLengthAnchorMin = coincideLengthAnchor;
+                coincideLengthAnchor = (coincideLengthAnchor + coincideLengthAnchorMax) / 2;
+                return this._getCoincideLength(value0, value1, value2, r0, r1,
                     coincideLengthAnchor, coincideLengthAnchorMin, coincideLengthAnchorMax);
             }
         },
@@ -236,24 +252,24 @@ define(function (require) {
             this.shapeList.push(circle);
 
             // 文本标签
-            /*var label = this.getLabel(
+            var label = this.getLabel(
                     seriesIndex, dataIndex, defaultColor,
-                    x, y, r, 100, 100
+                    x, y, r
                 );
             ecData.pack(
                 label,
-                series[seriesIndex], seriesIndex,
-                series[seriesIndex].data[dataIndex], dataIndex,
-                series[seriesIndex].data[dataIndex].name
+                series[0], seriesIndex,
+                series[0].data[dataIndex], dataIndex,
+                series[0].data[dataIndex].name
             );
             this.shapeList.push(label);
             // 特定状态下是否需要显示文本标签
-            if (!this._needLabel(serie, data,false)) {
+            /*if (!this._needLabel(serie, data,false)) {
                 label.invisible = true;
-            }
+            }*/
 
             // 文本标签视觉引导线
-            var labelLine = this.getLabelLine(
+            /*var labelLine = this.getLabelLine(
                     seriesIndex, dataIndex, defaultColor,
                     x, y, 100, 20, 100
                 );
@@ -355,11 +371,11 @@ define(function (require) {
          */
         getLabel : function (
             seriesIndex, dataIndex, defaultColor,
-            x, y, topWidth, bottomWidth, height
+            x, y, r
         ) {
-            var serie = this.series[seriesIndex];
-            var data = serie.data[dataIndex];
-            var location = this._paramsMap[seriesIndex].location;
+            var serie = this.series[0];
+            var data = serie.itemStyle;
+            
             // serie里有默认配置，放心大胆的用！
             var itemStyle = zrUtil.merge(
                     zrUtil.clone(data.itemStyle) || {},
@@ -378,37 +394,42 @@ define(function (require) {
             var textColor = defaultColor;
             labelControl.position = labelControl.position
                                     || itemStyle.normal.label.position;
-            if (labelControl.position == 'inner' || labelControl.position == 'inside') {
-                // 内部
-                textAlign = 'center';
-                textX = x + topWidth / 2;
-                if (Math.max(topWidth, bottomWidth) / 2 > zrArea.getTextWidth(text, textFont)) {
-                    textColor = '#fff';
-                }
-                else {
-                    textColor = zrColor.reverse(defaultColor);
-                }
-            }
-            else if (labelControl.position == 'left'){
-                // 左侧显示
-                textAlign = 'right';
-                textX = lineLength == 'auto'
-                        ? (location.x - 10)
-                        : (location.centerX - Math.max(topWidth, bottomWidth) / 2 - lineLength);
-            }
-            else {
-                // 右侧显示，默认 labelControl.position == 'outer' || 'right)
-                textAlign = 'left';
-                textX = lineLength == 'auto'
-                        ? (location.x + location.width + 10)
-                        : (location.centerX + Math.max(topWidth, bottomWidth) / 2 + lineLength);
-            }
+            // if (labelControl.position == 'inner' || labelControl.position == 'inside') {
+            //     // 内部
+            //     textAlign = 'center';
+            //     textX = x + topWidth / 2;
+            //     if (Math.max(topWidth, bottomWidth) / 2 > zrArea.getTextWidth(text, textFont)) {
+            //         textColor = '#fff';
+            //     }
+            //     else {
+            //         textColor = zrColor.reverse(defaultColor);
+            //     }
+            // }
+            // else if (labelControl.position == 'left'){
+            //     // 左侧显示
+            //     textAlign = 'right';
+            //     textX = lineLength == 'auto'
+            //             ? (location.x - 10)
+            //             : (location.centerX - Math.max(topWidth, bottomWidth) / 2 - lineLength);
+            // }
+            // else {
+            //     // 右侧显示，默认 labelControl.position == 'outer' || 'right)
+            //     textAlign = 'left';
+            //     textX = lineLength == 'auto'
+            //             ? (location.x + location.width + 10)
+            //             : (location.centerX + Math.max(topWidth, bottomWidth) / 2 + lineLength);
+            // }
+
+            // todo 首先实现默认显示即显示在顶部
+
+            textAlign = 'left';
+            textX = x;
 
             var textShape = {
                 zlevel : this._zlevelBase + 1,
                 style : {
-                    x : textX,
-                    y : y + height / 2,
+                    x : x,
+                    y : y - r - 10,
                     color : textStyle.color || textColor,
                     text : text,
                     textAlign : textStyle.align || textAlign,
@@ -417,7 +438,7 @@ define(function (require) {
                 }
             };
 
-            //----------高亮
+            /*//----------高亮
             status = 'emphasis';
             // label配置
             labelControl = itemStyle[status].label || labelControl;
@@ -459,7 +480,7 @@ define(function (require) {
                 textAlign : textStyle.align || textAlign,
                 textFont : textFont,
                 brushType : 'fill'
-            }
+            }*/
 
             return new TextShape(textShape);
         },
@@ -469,7 +490,7 @@ define(function (require) {
          */
         getLabelText : function (seriesIndex, dataIndex, status) {
             var series = this.series;
-            var serie = series[seriesIndex];
+            var serie = series[0];
             var data = serie.data[dataIndex];
             var formatter = this.deepQuery(
                 [data, serie],
@@ -590,7 +611,7 @@ define(function (require) {
             return new LineShape(lineShape)
         },
 
-        /**
+        /**  
          * 返回特定状态（normal or emphasis）下是否需要显示label标签文本
          * @param {Object} serie
          * @param {Object} data
@@ -598,7 +619,7 @@ define(function (require) {
          */
         _needLabel : function (serie, data, isEmphasis) {
             return this.deepQuery(
-                [data, serie],
+                [data, serie],  
                 'itemStyle.'
                 + (isEmphasis ? 'emphasis' : 'normal')
                 + '.label.show'

@@ -76,17 +76,8 @@ option = {
     calculable : false,
     series : [
         {
-            name:'漏斗图',
+            name:'韦恩图',
             type:'venn',
-            x: '10%',
-            y: 60,
-            //x2: 80,
-            y2: 60,
-            width: '80%',
-            min: 0,
-            max: 100,
-            minSize: '0%',
-            maxSize: '100%',
             itemStyle: {
                 normal: {
                     // color: 各异,
@@ -105,19 +96,6 @@ option = {
                             width: 1,
                             type: 'solid'
                         }
-                    }
-                },
-                emphasis: {
-                    // color: 各异,
-                    label: {
-                        show: true,
-                        formatter: '{b}:{c}%',
-                        textStyle:{
-                            fontSize:20
-                        }
-                    },
-                    labelLine: {
-                        show: true
                     }
                 }
             },
